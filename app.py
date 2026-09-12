@@ -7,8 +7,9 @@ import threading
 from flask import Flask, request, jsonify, send_file, render_template
 
 app = Flask(__name__)
-DOWNLOAD_DIR = os.path.join(os.path.dirname(__file__), "downloads")
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+# Vercel functions cannot rely on the project directory being writable.
+# /tmp is the writable ephemeral filesystem available during a function run.
+DOWNLOAD_DIR = os.path.join("/tmp", "kageclip-downloads")
 jobs = {}
 
 SUPPORTED_SITES = [
@@ -24,9 +25,16 @@ def parse_ytdlp_json(stdout):
         if line: return json.loads(line)
     raise ValueError("yt-dlp returned no data")
 
+def ytdlp_cmd(*args):
+    # Running the module is more reliable on Vercel than assuming a global
+    # yt-dlp executable is present on PATH.
+    return ["python", "-m", "yt_dlp", *args]
+
 def run_download(job_id, url, format_choice, format_id):
-    job = jobs[job_id]; out_template = os.path.join(DOWNLOAD_DIR, f"{job_id}.%(ext)s")
-    cmd = ["yt-dlp", "--no-playlist", "-o", out_template]
+    job = jobs[job_id]
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    out_template = os.path.join(DOWNLOAD_DIR, f"{job_id}.%(ext)s")
+    cmd = ytdlp_cmd("--no-playlist", "-o", out_template)
     if format_choice == "audio": cmd += ["-x", "--audio-format", "mp3"]
     elif format_id: cmd += ["-f", f"{format_id}+bestaudio/best", "--merge-output-format", "mp4"]
     else: cmd += ["-f", "bestvideo+bestaudio/best", "--merge-output-format", "mp4"]
@@ -59,7 +67,7 @@ def get_info():
     data=request.json or {}; url=data.get("url","").strip()
     if not url:return jsonify({"error":"No URL provided"}),400
     try:
-        result=subprocess.run(["yt-dlp","--no-playlist","-j",url],capture_output=True,text=True,timeout=60)
+        result=subprocess.run(ytdlp_cmd("--no-playlist","-j",url),capture_output=True,text=True,timeout=60)
         if result.returncode!=0:return jsonify({"error":result.stderr.strip().split("\n")[-1]}),400
         info=parse_ytdlp_json(result.stdout); best={}
         for f in info.get("formats",[]):
@@ -75,7 +83,7 @@ def get_playlist_info():
     data=request.json or {};url=data.get("url","").strip()
     if not url:return jsonify({"error":"No URL provided"}),400
     try:
-        result=subprocess.run(["yt-dlp","--flat-playlist","-J",url],capture_output=True,text=True,timeout=60)
+        result=subprocess.run(ytdlp_cmd("--flat-playlist","-J",url),capture_output=True,text=True,timeout=60)
         if result.returncode!=0:return jsonify({"error":result.stderr.strip().split("\n")[-1]}),400
         info=json.loads(result.stdout);return jsonify({"urls":[e.get("url") for e in info.get("entries",[]) if e.get("url")]})
     except subprocess.TimeoutExpired:return jsonify({"error":"Timed out fetching playlist info"}),400
