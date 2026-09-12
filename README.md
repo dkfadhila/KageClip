@@ -74,8 +74,7 @@ And the details that make it feel calm rather than busy:
 
 No dashboards to learn and nothing to configure — the downloader *is* the interface. One large input, one orange button, and a little shadow watching over it.
 
-<div align="center">
-  <img src="assets/preview-mp3.png" alt="KageClip in MP3 mode" width="720">
+
 </div>
 
 ## Under the hood
