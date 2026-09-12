@@ -1,0 +1,20 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KageClip — clip the web, keep what matters.">
+  <rect width="1200" height="320" fill="#F7F4EF"/>
+
+  <!-- faint background eclipse -->
+  <circle cx="1035" cy="60" r="170" fill="#292929" opacity="0.05"/>
+  <circle cx="1075" cy="28" r="168" fill="#F7F4EF"/>
+
+  <!-- crescent mark -->
+  <circle cx="150" cy="152" r="54" fill="#292929"/>
+  <circle cx="174" cy="131" r="50" fill="#F7F4EF"/>
+
+  <!-- wordmark -->
+  <text x="252" y="182" font-family="Georgia, 'Times New Roman', serif" font-size="106" letter-spacing="-3" fill="#252525">Kage<tspan fill="#F15A32" font-style="italic">Clip</tspan></text>
+
+  <!-- japanese subtitle -->
+  <text x="256" y="234" font-family="Georgia, 'Hiragino Mincho ProN', 'Yu Mincho', serif" font-size="27" letter-spacing="12" fill="#6E6961">影で、残す。</text>
+
+  <!-- eyebrow -->
+  <text x="257" y="278" font-family="Georgia, serif" font-size="16" letter-spacing="6" fill="#85817A">FREE MEDIA DOWNLOADER FOR EVERY LINK</text>
+</svg>
